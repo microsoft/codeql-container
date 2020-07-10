@@ -4,7 +4,7 @@
 > Current version of CodeQL only works for interpreted languages. We will add compiled languages support on future versions.
 
 CodeQL Container is a project aimed at making it easier to start using CodeQL (https://github.com/github/codeql). This project
-contains a Docker file which builds a container with the latest version of codeql-cli and codeql queries precompiled. 
+contains a Docker file which builds a container, with the latest version of codeql-cli and codeql queries precompiled. 
 It also contains scripts to keep the toolchain in the container updated. You can use this container to:
 
 * Start using codeql-cli and run queries on your projects without installing it on your local machine.
@@ -18,10 +18,10 @@ We shall continue to add more features and would be happy to accept contribution
 #### Downloading a pre-built container
 
 We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: mcr.microsoft.com/codeql/codeql-container.
-You can run the image by running the command:
 
+You can pull the image by running the command:
 ```
-$ docker run --rm mcr.microsoft.com/codeql/codeql-container
+$ docker pull mcr.microsoft.com/codeql/codeql-container
 ```
 
 If you want to analyze a particular source directory with codeql, run the container as:
@@ -29,6 +29,7 @@ If you want to analyze a particular source directory with codeql, run the contai
 ```
 $ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=<query run...>
 ```
+
 where `/dir/to/analyze` contains the source files that have to be analyzed, and `/dir/for/results` is where the result output 
 needs to be stored, and you can specify QL_PACKS environment variable for specific QL packs to be run on the provided code.
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
@@ -62,7 +63,7 @@ $ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-contai
 $ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db
 ```
 
-This command will run all the QL packs related to security and output the results to the results folder.
+For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
 
 #### Building the container
 
