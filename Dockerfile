@@ -55,9 +55,9 @@ ENV CODEQL_HOME /usr/local/codeql-home
 # record the latest version of the codeql-cli
 RUN python3 /usr/local/startup_scripts/get-latest-codeql-version.py > /tmp/codeql_version
 RUN mkdir -p ${CODEQL_HOME} \
-${CODEQL_HOME}/codeql-repo \
-${CODEQL_HOME}/codeql-go-repo \
-/opt/codeql
+    ${CODEQL_HOME}/codeql-repo \
+    ${CODEQL_HOME}/codeql-go-repo \
+    /opt/codeql
 
 RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \
     wget -q https://github.com/github/codeql-cli-binaries/releases/download/${CODEQL_VERSION}/codeql-linux64.zip -O /tmp/codeql_linux.zip && \
