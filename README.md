@@ -16,48 +16,63 @@ We shall continue to add more features and would be happy to accept contribution
 ### Basic Usage
 
 #### Downloading a pre-built container
+
 We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: mcr.microsoft.com/codeql/codeql-container.
 You can run the image by running the command:
+
 ```
 $ docker run --rm mcr.microsoft.com/codeql/codeql-container
 ```
 
 If you want to analyze a particular source directory with codeql, run the container as:
+
 ```
 $ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=<query run...>
 ```
-where /dir/to/analyze contains the source files that have to be analyzed, and /dir/for/results is where the result output 
+where `/dir/to/analyze` contains the source files that have to be analyzed, and `/dir/for/results` is where the result output 
 needs to be stored, and you can specify QL_PACKS environment variable for specific QL packs to be run on the provided code.
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
-CODEQL_CLI_ARGS are the arguments that will be directly passed on to the codeql-cli. Some examples of CODEQL_CLI_ARGS are:
+
+`CODEQL_CLI_ARGS` are the arguments that will be directly passed on to the codeql-cli. Some examples of `CODEQL_CLI_ARGS` are:
+
 ```
-CODEQL_CLI_ARGS = database create /opt/src/source_db
+CODEQL_CLI_ARGS="database create /opt/src/source_db"
 ```
+
 **Note:** If you map your source volume to some other mountpoint other than /opt/src, you will have to make the corresponding changes
-in the CODEQL_CLI_ARGS.
+in the `CODEQL_CLI_ARGS`.
 
 There are some additional docker environment variables that you can specify to control the execution of the container:
-    * CHECK_LATEST_CODEQL_CLI - If there is a newer version of codeql-cli, download and install it
-    * CHECK_LATEST_QUERIES - if there is are updates to the codeql queries repo, download and use it
-    * PRECOMPILE_QUERIES - If we downloaded new queries, precompile all new query packs (query execution will be faster)
-        WARNING: Precompiling query packs might take a few hours, depending on speed of your machine and the CPU/Memory limits (if any) 
-        you have placed on the container.
 
-Since codeql first creates a database of the code representation, and then analyzes the db for issues, we need a few commands to 
-analyze a source code repo. 
-For example, if you want to analyze a python project source code placed in /dir/to/analyze (or C:\dir\to\analyze for example, in windows), 
-to analyze and get a sarif result file, you will have to run:
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db"
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db
+* `CHECK_LATEST_CODEQL_CLI` - If there is a newer version of codeql-cli, download and install it
+* `CHECK_LATEST_QUERIES` - if there is are updates to the codeql queries repo, download and use it
+* `PRECOMPILE_QUERIES` - If we downloaded new queries, precompile all new query packs (query execution will be faster)
+
+**WARNING:** Precompiling query packs might take a few hours, depending on speed of your machine and the CPU/memory limits (if any)
+you have placed on the container.
+
+Since CodeQL first creates a database of the code representation, and then analyzes the db for issues, we need a few commands to 
+analyze a source code repo.
+
+For example, if you want to analyze a python project source code placed in `/dir/to/analyze` (or `C:\dir\to\analyze` for example, in Windows), 
+to analyze and get a SARIF result file, you will have to run:
 
 ```
-This command will run all the ql packs related to security and output the results to the results folder.
+$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db"
+$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db
+```
+
+This command will run all the QL packs related to security and output the results to the results folder.
 
 #### Building the container
+
 Building the container should be pretty straightforward.
+
+```
 git clone ...
 cd src
 docker build . -f Dockerfile -t codeql-container
+```
 
 # Contributing
 
