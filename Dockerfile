@@ -29,7 +29,18 @@ RUN apt-get update && \
         rsync \
     	file \
     	gettext && \
-        apt-get clean
+        apt-get clean && \
+        ln -s /usr/bin/python3.8 /usr/bin/python && \
+        ln -s /usr/bin/pip3 /usr/bin/pip 
+
+# Install .NET Core for tools/builds
+RUN cd /tmp && \
+    wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    add-apt-repository universe && \
+    apt-get update && \
+    rm packages-microsoft-prod.deb
+RUN apt-get install -y dotnet-sdk-3.1
 
 # Clone our setup and run scripts
 #RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
@@ -44,14 +55,13 @@ ENV CODEQL_HOME /usr/local/codeql-home
 # record the latest version of the codeql-cli
 RUN python3 /usr/local/startup_scripts/get-latest-codeql-version.py > /tmp/codeql_version
 RUN mkdir -p ${CODEQL_HOME} \
-${CODEQL_HOME}/codeql-cli \
 ${CODEQL_HOME}/codeql-repo \
 ${CODEQL_HOME}/codeql-go-repo \
 /opt/codeql
 
 RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \
     wget -q https://github.com/github/codeql-cli-binaries/releases/download/${CODEQL_VERSION}/codeql-linux64.zip -O /tmp/codeql_linux.zip && \
-    unzip /tmp/codeql_linux.zip -d ${CODEQL_HOME}/codeql-cli && \
+    unzip /tmp/codeql_linux.zip -d ${CODEQL_HOME} && \
     rm /tmp/codeql_linux.zip
 
 # get the latest codeql queries and record the HEAD
@@ -60,9 +70,9 @@ RUN git clone https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
 RUN git clone https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-go-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-go-repo-last-commit
 
-ENV PATH="${CODEQL_HOME}/codeql-cli/codeql:${PATH}"
+ENV PATH="${CODEQL_HOME}/codeql:${PATH}"
 
 # Pre-compile our queries to save time later
 #RUN codeql query compile --threads=0 ${CODEQL_HOME}/codelq-repo/*/ql/src/codeql-suites/*-.qls
 #RUN codeql query compile --threads=0 ${CODEQL_HOME}/codelq-go-repo/ql/src/codeql-suites/*-.qls
-#ENTRYPOINT ["python3", "/usr/local/startup_scripts/setup.py"]
+ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]

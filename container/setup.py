@@ -2,45 +2,65 @@
 
 import os
 import sys
-from logging import Logger, getLogger, INFO
+import argparse
 from sys import path as syspath
 from libs.utils import *
 from libs.github import *
 from libs.codeql import *
 
- # get the parent directory of the script, to link libs
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+CODEQL_HOME = get_env_variable('CODEQL_HOME')
 
-CODEQL_HOME = environ['CODEQL_HOME']
+# should we update the local copy of codeql-cli if a new version is available?
+CHECK_LATEST_CODEQL_CLI = get_env_variable('CHECK_LATEST_CODEQL_CLI', True)
 
-logger = getLogger('codeql-container')
+# should we update the local copy of codeql queries if a new version is available?
+CHECK_LATEST_QUERIES = get_env_variable('CHECK_LATEST_QUERIES', True)
+
+# if we are downloading new queries, should we precompile them 
+PRECOMPILE_QUERIES = get_env_variable('PRECOMPILE_QUERIES', True)
+
+
+logger = getLogger('codeql-container-setup')
 logger.setLevel(INFO)
+
+def parse_arguments():
+
+    parser = argparse.ArgumentParser(description='Setup codeql components.')
+    parser.add_argument("-c", "--check-latest-cli", help="check the latest codeql-cli package available and install it", 
+                        default=False, action="store_true")
+    parser.add_argument("-q", "--check-latest-queries", help="check the latest codeql queries available and install it",
+                        default=False, action="store_true")
+    #(makes query execution faster, but building the container build slower).
+    parser.add_argument("-p", "--precompile-latest-queries", help="if new queries were downloaded, precompile it",    
+                        default=False, action="store_true")
+    args = parser.parse_args()
+
+    return args
 
 def setup():
     """
     Download and install the latest codeql cli
     Download and install the latest codeql queries
     """
-
+    args = parse_arguments()
     # check version and download the latest version
-    get_latest_codeql()
-    # install vscode?
-    # clone codeql libs
-    # setup vscode + codeql
-    # wait for user
+    get_latest_codeql(args)
 
-
-def get_latest_codeql():
+def get_latest_codeql(args):
     # what version do we have?
     codeql = CodeQL(CODEQL_HOME)
     current_installed_version = codeql.get_current_local_version()
     logger.info(f'Current codeql version: {current_installed_version}')
     latest_online_version = codeql.get_latest_codeql_github_version()
-    if current_installed_version != latest_online_version.title:
+    if current_installed_version != latest_online_version.title and args.check_latest_cli:
         # we got a newer version online, download and install it
         codeql.download_and_install_latest_codeql(latest_online_version)
     # get the latest queries regardless (TODO: Optimize by storing and checking the last commit hash?)
-    codeql.download_and_install_latest_codeql_queries()
+    if args.check_latest_queries:
+        codeql.download_and_install_latest_codeql_queries()
+    if args.precompile_latest_queries:
+        codeql.precompile_queries()
 
+logger = get_logger()
 setup()
 

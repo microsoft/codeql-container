@@ -20,7 +20,6 @@ class CodeQL:
     TEMP_DIR ='/tmp'
 
     # Error codes
-    ERROR_EXECUTING_COMMAND = 1
     ERROR_EXECUTING_CODEQL = 2
     ERROR_UNKNOWN_OS = 3
     ERROR_GIT_COMMAND = 4
@@ -65,7 +64,7 @@ class CodeQL:
             exit(ERROR_GIT_COMMAND)
 
     def get_current_local_version(self):
-        ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql-cli/codeql/codeql version', shell=True).decode("utf-8")
+        ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql version', shell=True).decode("utf-8")
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
             exit(ERROR_EXECUTING_CODEQL)
@@ -84,3 +83,13 @@ class CodeQL:
         codeql_dir = f'{self.CODEQL_HOME}/codeql-cli'
         wipe_and_create_dir(codeql_dir)
         ret1 = check_output_wrapper(f'unzip {download_path} -d {codeql_dir}', shell=True)
+        
+    def precompile_queries(self):
+        execute_codeql_command(f' query compile --search-path {self.CODEQL_HOME} {self.CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls')
+
+    def execute_codeql_command(self, args):
+        ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql {args}', shell=True).decode("utf-8")
+        if ret_string is CalledProcessError:
+            logger.error("Could not run codeql command")
+            exit(ERROR_EXECUTING_CODEQL)
+        return ret_string
