@@ -69,8 +69,8 @@ This command will run all the QL packs related to security and output the result
 Building the container should be pretty straightforward.
 
 ```
-git clone ...
-cd src
+git clone https://github.com/microsoft/codeql-container
+cd codeql-container
 docker build . -f Dockerfile -t codeql-container
 ```
 
