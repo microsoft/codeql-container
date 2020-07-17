@@ -60,7 +60,8 @@ to analyze and get a SARIF result file, you will have to run:
 
 ```
 $ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db"
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db
+$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=" database upgrade /opt/src/source_db"
+$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db"
 ```
 
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.

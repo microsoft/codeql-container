@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 from time import sleep
@@ -40,7 +41,7 @@ def main():
     # what command did the user ask to run? 
     if CODEQL_CLI_ARGS == False or CODEQL_CLI_ARGS == None or CODEQL_CLI_ARGS == ' ':
         # nothing to do
-        logger.info("No argument passed in for codeql-cli, nothing to do. To perform some task, please set the CODEQL_CLI_ARGS environment variable to a valid argument..")
+        logger.info("No valid argument passed in for codeql-cli, nothing to do. To perform some task, please set the CODEQL_CLI_ARGS environment variable to a valid argument...")
     else:
         codeql = CodeQL(CODEQL_HOME)
         run_result = codeql.execute_codeql_command(CODEQL_CLI_ARGS)

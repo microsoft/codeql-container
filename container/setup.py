@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-
+#!/usr/bin/env python3
 import os
 import sys
 import argparse
@@ -10,31 +9,23 @@ from libs.codeql import *
 
 CODEQL_HOME = get_env_variable('CODEQL_HOME')
 
-# should we update the local copy of codeql-cli if a new version is available?
-CHECK_LATEST_CODEQL_CLI = get_env_variable('CHECK_LATEST_CODEQL_CLI', True)
-
-# should we update the local copy of codeql queries if a new version is available?
-CHECK_LATEST_QUERIES = get_env_variable('CHECK_LATEST_QUERIES', True)
-
-# if we are downloading new queries, should we precompile them 
-PRECOMPILE_QUERIES = get_env_variable('PRECOMPILE_QUERIES', True)
-
-
 logger = getLogger('codeql-container-setup')
 logger.setLevel(INFO)
 
 def parse_arguments():
 
     parser = argparse.ArgumentParser(description='Setup codeql components.')
+    # should we update the local copy of codeql-cli if a new version is available?
     parser.add_argument("-c", "--check-latest-cli", help="check the latest codeql-cli package available and install it", 
                         default=False, action="store_true")
+    # should we update the local copy of codeql queries if a new version is available?
     parser.add_argument("-q", "--check-latest-queries", help="check the latest codeql queries available and install it",
                         default=False, action="store_true")
     #(makes query execution faster, but building the container build slower).
     parser.add_argument("-p", "--precompile-latest-queries", help="if new queries were downloaded, precompile it",    
                         default=False, action="store_true")
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     return args
 
 def setup():
