@@ -31,8 +31,12 @@ def check_output_wrapper(*args, **kwargs):
     try:
         return check_output(*args, **kwargs)
     except CalledProcessError as msg:
-        logger.warning('Error %s,%s,%s from command.', msg.returncode, msg.output, msg.stderr)
-        logger.debug('Output: %s', msg.output)
+        logger.error(f"Error {msg.returncode} executing from command.")
+        if msg.stderr != None:
+            print("Command Error Output:\n" + msg.stderr.decode('utf-8'))
+        if msg.output != None:
+            print("Command Output: \n" + msg.output.decode('utf-8'))
+        logger.error("Exiting...")
         sys.exit(ERROR_EXECUTING_COMMAND);
         
 def wipe_and_create_dir(dirname):

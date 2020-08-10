@@ -20,7 +20,27 @@ exit /b 1
 rem docker pull codeql/codeql-container
 echo docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db" csteosstools.azurecr.io/codeql/codeql-container
 start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db" csteosstools.azurecr.io/codeql/codeql-container
-echo docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database upgrade /opt/src/source_db" csteosstools.azurecr.io/codeql/codeql-container 
-echo docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/src/source_db --format=sarifv2 --output=/opt/results/issues.sarif python-security-and-quality.qls" csteosstools.azurecr.io/codeql/codeql-container 
 
-echo "If there were no errors in the execution, the results file should be located at %2/issues.sarif"
+call :print_status "Failed creating the database" , %errorlevel%
+if %errorlevel% GTR 0 (
+    call :print_exit_error "Failed creating the database"    
+    exit /b %errorlevel%
+)
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database upgrade /opt/src/source_db" csteosstools.azurecr.io/codeql/codeql-container 
+if %errorlevel% GTR 0 (
+    call :print_exit_error "Failed upgrading the database"    
+    exit /b %errorlevel%
+)
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/src/source_db --format=sarifv2 --output=/opt/results/issues.sarif python-security-and-quality.qls" csteosstools.azurecr.io/codeql/codeql-container 
+if %errorlevel% GTR 0 (
+    call :print_exit_error "Failed to run the query on the database"    
+    exit /b %errorlevel%
+)
+echo "The results file should be located at %2\issues.sarif"
+
+
+:print_exit_error
+    echo.
+    echo [7;31m%~1[0m
+    echo.
+    echo [0mExiting...[0m

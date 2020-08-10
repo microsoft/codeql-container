@@ -33,10 +33,11 @@ def setup():
     Download and install the latest codeql cli
     Download and install the latest codeql queries
     """
+    logger.info("Starting setup...")
     args = parse_arguments()
     # check version and download the latest version
     get_latest_codeql(args)
-
+    logger.info("End setup...")
 def get_latest_codeql(args):
     # what version do we have?
     codeql = CodeQL(CODEQL_HOME)
