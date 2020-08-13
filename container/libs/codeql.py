@@ -92,4 +92,4 @@ class CodeQL:
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
             exit(ERROR_EXECUTING_CODEQL)
-        return ret_string
+        return bytearray(ret_string).decode('utf-8')
