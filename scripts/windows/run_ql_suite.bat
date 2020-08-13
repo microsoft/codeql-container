@@ -25,21 +25,21 @@ docker pull mcr.microsoft.com/cstsectools/codeql-container
 call :print_green "Pulled the container" 
 
 call :print_yellow "Creating the codeQL database. This might take some time depending on the size of the project..."
-start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database create --language=%language%% /opt/src/source_db -s /opt/src" mcr.microsoft.com/cstsectools/codeql-container
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database create --language=%language%% /opt/results/source_db -s /opt/src" mcr.microsoft.com/cstsectools/codeql-container
 
 if %errorlevel% GTR 0 (
     call :print_red "Failed creating the database"    
     exit /b %errorlevel%
 )
 
-start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database upgrade /opt/src/source_db" mcr.microsoft.com/cstsectools/codeql-container 
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database upgrade /opt/results/source_db" mcr.microsoft.com/cstsectools/codeql-container 
 if %errorlevel% GTR 0 (
     call :print_red "Failed upgrading the database"    
     exit /b %errorlevel%
 )
 
-call :print_yellow "Running the Quality and Security rules on the project"
-start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/src/source_db --format=sarifv2 --output=/opt/results/issues.sarif %language%-%qlpack%.qls" mcr.microsoft.com/cstsectools/codeql-container
+call :print_yellow "Running the %qlpack% ql pack rules on the project"
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/results/source_db --format=sarifv2 --output=/opt/results/issues.sarif %language%-%qlpack%.qls" mcr.microsoft.com/cstsectools/codeql-container
 if %errorlevel% GTR 0 (
     call :print_red "Failed to run the query on the database"    
     exit /b %errorlevel%

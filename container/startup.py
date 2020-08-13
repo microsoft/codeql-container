@@ -45,7 +45,8 @@ def main():
     else:
         codeql = CodeQL(CODEQL_HOME)
         run_result = codeql.execute_codeql_command(CODEQL_CLI_ARGS)
- 
+        print(run_result)
+        
     if WAIT_AFTER_EXEC:
         logger.info("Wait forever specified, waiting...")
         while True:
