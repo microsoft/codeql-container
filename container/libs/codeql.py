@@ -88,7 +88,7 @@ class CodeQL:
         execute_codeql_command(f' query compile --search-path {self.CODEQL_HOME} {self.CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls')
 
     def execute_codeql_command(self, args):
-        ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql {args}', shell=True).decode("utf-8")
+        ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql {args}', shell=True)
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
             exit(ERROR_EXECUTING_CODEQL)
