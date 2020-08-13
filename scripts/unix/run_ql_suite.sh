@@ -3,6 +3,7 @@ scriptname=$(basename "$0")
 inputfile=${1}
 outputfile=${2}
 language=${3}
+qlpack=${4}
 
 RED="\033[31m"
 YELLOW="\033[33m"
@@ -21,12 +22,13 @@ print_green() {
     echo -e "${GREEN}${1}${RESET}"
 }
 
-if [ "$#" -ne 3 ]; then
-    print_yellow "\nPlease provide the folder to analyze, the folder to store results, and the coding language of the project."
-    print_yellow "\nUsage: ${scriptname} <folder to analyze> <folder to store result> <language>"
-    print_yellow "\nExample: ${scriptname} /tmp/pandas /tmp/results python"
+if [ "$#" -ne 4 ]; then
+    print_yellow "\nPlease provide the folder to analyze, the folder to store results, the coding language of the project, and the QL suite to run."
+    print_yellow "\nUsage: ${scriptname} <folder to analyze> <folder to store result> <language> <ql suite>"
+    print_yellow "\nExample: ${scriptname} /tmp/pandas /tmp/results python security-and-quality"
    exit 1
 fi
+
 
 print_yellow "Getting/Updating the codeQL container\n"
 docker pull mcr.microsoft.com/cstsectools/codeql-container:latest
@@ -58,7 +60,7 @@ else
 fi
 
 print_yellow "\nRunning the Quality and Security rules on the project"
-docker run --rm --name codeql-container -v ${inputfile}:/opt/src -v ${outputfile}:/opt/results -e CODEQL_CLI_ARGS=database\ analyze\ /opt/src/source_db\ --format=sarifv2\ --output=/opt/results/issues.sarif\ ${language}-security-and-quality.qls mcr.microsoft.com/cstsectools/codeql-container 
+docker run --rm --name codeql-container -v ${inputfile}:/opt/src -v ${outputfile}:/opt/results -e CODEQL_CLI_ARGS=database\ analyze\ /opt/src/source_db\ --format=sarifv2\ --output=/opt/results/issues.sarif\ ${language}-${qlpack}.qls mcr.microsoft.com/cstsectools/codeql-container 
 if [ $? -eq 0 ]
 then
     print_green "\nQuery execution successful" 

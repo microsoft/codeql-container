@@ -21,13 +21,13 @@ We keep updating the docker image periodically and uploading it to the Microsoft
 
 You can pull the image by running the command:
 ```
-$ docker pull mcr.microsoft.com/codeql/codeql-container
+$ docker pull mcr.microsoft.com/cstsectools/codeql-container
 ```
 
 If you want to analyze a particular source directory with codeql, run the container as:
 
 ```
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=<query run...>
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=<query run...> mcr.microsoft.com/cstsectools/codeql-container
 ```
 
 where `/dir/to/analyze` contains the source files that have to be analyzed, and `/dir/for/results` is where the result output 
@@ -59,9 +59,9 @@ For example, if you want to analyze a python project source code placed in `/dir
 to analyze and get a SARIF result file, you will have to run:
 
 ```
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db"
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=" database upgrade /opt/src/source_db"
-$ docker run --rm --name codeql-container mcr.microsoft.com/codeql/codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db"
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/src/source_db /opt/output/source_db" mcr.microsoft.com/cstsectools/codeql-container
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=" database upgrade /opt/src/source_db" mcr.microsoft.com/cstsectools/codeql-container
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/src/source_db" mcr.microsoft.com/cstsectools/codeql-container
 ```
 
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
@@ -74,6 +74,35 @@ Building the container should be pretty straightforward.
 git clone https://github.com/microsoft/codeql-container
 cd codeql-container
 docker build . -f Dockerfile -t codeql-container
+```
+
+# Convenience Scripts
+Analyzing a source directory takes multiple invocations of the container, as mentioned above. To help with that, we've built some scripts for convenience, which does these invocations for you. 
+These scripts are in the ```scripts``` folder, under their respective platforms (unix or windows).
+
+
+##### analyze_security.sh
+scripts/unix/analyze_security.sh (or scripts/windows/analyze_security.bat for windows) runs the Security and Quality QL pack suite on your project. This is how you would run it:
+
+```
+scripts/unix/analyze_security.sh /path/to/analyze /path/to/results language
+```
+
+For example for the python project can be analyzed thus:
+
+```
+/scripts/unix/analyze_security.sh /tmp/django/src /tmp/django/output python
+```
+
+for JavaScript:
+```
+/scripts/unix/analyze_security.sh /tmp/express/src /tmp/express/output javascript
+```
+
+##### run_qlpack.sh
+If you know which QL suite you would like to run on the code to be analyzed, use scripts/unix/run_qlpack.sh (or scripts/windows/run_qlpack.bat for windows). 
+```
+scripts/unix/analyze_security.sh /path/to/analyze /path/to/results language qlpack
 ```
 
 # Contributing
