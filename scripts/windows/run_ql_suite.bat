@@ -46,7 +46,7 @@ if %errorlevel% GTR 0 (
 )
 
 if %errorlevel% EQU 0 (
-    call :print_yellow "The results file are saved at at %2\issues.sarif"
+    call :print_yellow "The results file are saved at %2\issues.sarif"
 )
 
 :print_yellow
