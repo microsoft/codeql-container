@@ -15,7 +15,7 @@ We shall continue to add more features and would be happy to accept contribution
 
 ### TL;DR
 
-Analyze a python project django located in the folder ```/tmp/django``` by running the security and quality QL pack on it:
+Analyze the python project django located in the folder ```/tmp/django``` by running the security and quality QL pack on it:
 
 ```
 /scripts/unix/analyze_security.sh /tmp/django/src /tmp/django/results python
@@ -30,25 +30,37 @@ scripts/unix/run_qlpack.sh /tmp/express/src /tmp/express/results javascript secu
 
 The results will be stored in /tmp/express/results/issues.sarif
 
-To find a list of installed QL packs in the container:
+To find a list of QL packs installed in the container:
 
 ```
 docker run --rm --name codeql-container -e CODEQL_CLI_ARGS="resolve qlpacks"  mcr.microsoft.com/cstsectools/codeql-container
 ```
 
-### Basic Usage
+### Downloading a pre-built container
 
-#### Downloading a pre-built container
-
-We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: mcr.microsoft.com/codeql/codeql-container.
+We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: ```mcr.microsoft.com/codeql/codeql-container```.
 
 You can pull the image by running the command:
 ```
 $ docker pull mcr.microsoft.com/cstsectools/codeql-container
 ```
-The codeQL container executes one codeQL command per invocation. We kept this design decision because it makes it easy for the user to run any codeQL command, and not be bound by the automation scripts inside the container.
 
-So, if you want to analyze a particular source directory with the container, you start by running the container as:
+
+### Building the container from Dockerfile
+
+Building the container should be pretty straightforward.
+
+```
+git clone https://github.com/microsoft/codeql-container
+cd codeql-container
+docker build . -f Dockerfile -t codeql-container
+```
+
+### Basic Usage
+ 
+The codeQL container executes one codeQL command per invocation. We designed it this way because it makes it easy for the user to run any codeQL command, and not be bound by the automation scripts inside the container.
+
+The basic example format of the container invocation is as follows:
 
 ```
 $ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=<query run...> mcr.microsoft.com/cstsectools/codeql-container
@@ -59,15 +71,15 @@ needs to be stored, and you can specify CODEQL_CLI_ARGS environment variable for
 
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
 
-`CODEQL_CLI_ARGS` are the arguments that will be directly passed on to the codeql-cli. For example:
+`CODEQL_CLI_ARGS` are the arguments that will be directly passed on to the codeql-cli. For example, in this case, if we supply:
 
 ```
 CODEQL_CLI_ARGS="database create /opt/results/source_db -s /opt/src"
 ```
 
-This argument will create a codeQL db of your project (that you have mapped to the /opt/src folder above) in the /opt/results folder, which maps to /dir/for/results above on your local computer.
+it will create a codeQL db of your project (in ```/dir/to/analyze``` ) in the ```/dir/for/results``` folder.
 
-> **Note:** If you map your source volume to some other mountpoint other than /opt/src, you will have to make the corresponding changes
+> **Note:** If you map your source volume to some other mount point other than /opt/src, you will have to make the corresponding changes
 > in the `CODEQL_CLI_ARGS`.
 
 There are some additional docker environment flags that you can set/unset to control the execution of the container:
@@ -85,29 +97,23 @@ For example, if you want to analyze a python project source code placed in `/dir
 to analyze and get a SARIF result file, you will have to run:
 
 ```
+# create the codeql db
 $ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database create --language=python /opt/results/source_db -s /opt/src" mcr.microsoft.com/cstsectools/codeql-container
+
+# upgrade the db if necessary
 $ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=" database upgrade /opt/results/source_db" mcr.microsoft.com/cstsectools/codeql-container
-$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/results/source_db" mcr.microsoft.com/cstsectools/codeql-container
+
+# run the queries in the qlpack
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/results/source_db qlpack.qps" mcr.microsoft.com/cstsectools/codeql-container
 ```
 
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
 
-#### Building the container
-
-Building the container should be pretty straightforward.
-
-```
-git clone https://github.com/microsoft/codeql-container
-cd codeql-container
-docker build . -f Dockerfile -t codeql-container
-```
-
-# Convenience Scripts
+### Convenience Scripts
 Analyzing a source directory takes multiple invocations of the container, as mentioned above. To help with that, we've built some scripts for convenience, which does these invocations for you. 
 These scripts are in the ```scripts``` folder, under their respective platforms (unix or windows).
 
-
-##### analyze_security.sh
+#### analyze_security.sh
 scripts/unix/analyze_security.sh (or scripts/windows/analyze_security.bat for windows) runs the Security and Quality QL pack suite on your project. This is how you would run it:
 
 ```
@@ -125,8 +131,8 @@ for JavaScript:
 /scripts/unix/analyze_security.sh /tmp/express/src /tmp/express/output javascript
 ```
 
-##### run_qlpack.sh
-If you know which QL suite you would like to run on the code to be analyzed, use scripts/unix/run_qlpack.sh (or scripts/windows/run_qlpack.bat for windows). 
+#### run_qlpack.sh
+If you know which QL suite you would like to run on the code, use scripts/unix/run_qlpack.sh (or scripts/windows/run_qlpack.bat for windows). 
 
 ```
 scripts/unix/run_qlpack.sh /path/to/analyze /path/to/results language qlpack
@@ -138,7 +144,7 @@ For example, on windows:
 scripts\windows\run_ql_suite.bat e:\temp\express\src e:\temp\express\results javascript code-scanning 
 ```
 
-# Contributing
+### Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
