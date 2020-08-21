@@ -79,5 +79,4 @@ RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-
 RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-go-repo/ql/src/codeql-suites/*.qls
 
 ENV PYTHONIOENCODING=utf-8
-ENV JAVA_HOME=
 ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
