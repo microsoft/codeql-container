@@ -1,0 +1,23 @@
+{
+  "name": "codeql-container",
+  "version": "1.0.0",
+  "description": "> **Note:** CodeQL container is currently in **public preview**. Please report any bugs to https://github.com/microsoft/codeql-container/issues. > Current version of CodeQL only works for interpreted languages. We will add compiled languages support in future versions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trade-platform/codeql-container.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trade-platform/codeql-container/issues"
+  },
+  "homepage": "https://github.com/trade-platform/codeql-container#readme",
+  "devDependencies": {
+    "semantic-release": "^17.3.0"
+  }
+}
