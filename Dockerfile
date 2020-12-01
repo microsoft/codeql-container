@@ -6,6 +6,7 @@ ARG skip_compile=false
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install/update basics and python
+# hadolint ignore=SC1072
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     	software-properties-common \
@@ -43,6 +44,7 @@ RUN openssl x509 -inform pem -in Zscaler-Root-CA.pem -out /usr/local/share/ca-ce
 
 # Install .NET Core for tools/builds
 WORKDIR /tmp
+# hadolint ignore=DL3008
 RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -s -L -o packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     apt-get update; \
@@ -50,8 +52,10 @@ RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-p
     apt-get update && \
     rm packages-microsoft-prod.deb \
     && rm -rf /var/lib/apt/lists/*
+# hadolint ignore=DL3008
 RUN apt-get install -y --no-install-recommends dotnet-sdk-3.1
 
+# hadolint ignore=DL3004,DL4006
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
     && sudo apt-get install --no-install-recommends -y nodejs \
     && sudo apt-get clean \
@@ -61,6 +65,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
 #RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
+# hadolint ignore=DL3013
 RUN pip3 install --upgrade pip \
     && pip3 install -r /usr/local/startup_scripts/requirements.txt
 
@@ -79,6 +84,7 @@ RUN git clone https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
 RUN git clone https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-go-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-go-repo-last-commit
 
+# hadolint ignore=SC2086
 RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \
     curl https://github.com/github/codeql-cli-binaries/releases/download/${CODEQL_VERSION}/codeql-linux64.zip -s -L -o /tmp/codeql_linux.zip && \
     unzip /tmp/codeql_linux.zip -d ${CODEQL_HOME} && \
