@@ -84,10 +84,10 @@ RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \
     rm /tmp/codeql_linux.zip
 
 ENV PATH="${CODEQL_HOME}/codeql:${PATH}"
+ENV _JAVA_OPTIONS="-Xmx2g"
 
 # Pre-compile our queries to save time later
-RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls
-RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-go-repo/ql/src/codeql-suites/*.qls
+RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/javascript/ql/src/codeql-suites/*.qls
 
 ENV PYTHONIOENCODING=utf-8
 ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
