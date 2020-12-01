@@ -29,6 +29,7 @@ RUN apt-get update && \
         rsync \
     	file \
         dos2unix \
+        sudo \
     	gettext && \
         apt-get clean && \
         ln -s /usr/bin/python3.8 /usr/bin/python && \
