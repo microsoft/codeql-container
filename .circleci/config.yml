@@ -142,11 +142,9 @@ jobs:
           name: Avoid hosts unknown for github
           command: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
-      # `npx` lets us run semantic-release without a package.json; see
-      # .releaserc
       - run:
           name: Semantic Release
-          command: npx semantic-release
+          command: npm run release
 
   retrigger-builds:
     executor: node-executor  # use setup_remote_docker step instead of aws-ecr/default executor
