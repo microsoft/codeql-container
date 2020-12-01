@@ -34,6 +34,13 @@ RUN apt-get update && \
         ln -s /usr/bin/python3.8 /usr/bin/python && \
         ln -s /usr/bin/pip3 /usr/bin/pip 
 
+# install the zscalar ca cert
+COPY Zscaler-Root-CA.pem .
+RUN openssl x509 -inform pem -in Zscaler-Root-CA.pem -out /usr/local/share/ca-certificates/Zscaler-Root-CA.crt \
+    && update-ca-certificates \
+	&& pip config set global.cert /etc/ssl/certs/ca-certificates.crt
+
+
 # Install .NET Core for tools/builds
 RUN cd /tmp && \
     wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
