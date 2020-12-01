@@ -1,0 +1,184 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@6.15.0
+
+workflows:
+  version: 2
+    
+  weekly:
+    triggers:
+      - schedule:
+          cron: "0 12 * * 6" # saturday at noon
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - retrigger-builds:
+          context:
+            - docker-readonly-creds
+            - aws-ecr-creds
+
+  CircleCI:
+    jobs:
+      - install-scan-version:
+          context:
+            - docker-readonly-creds
+      - build:
+          context:
+            - docker-readonly-creds
+            - aws-ecr-creds
+          requires:
+            - install-scan-version
+      - release:
+          context:
+            - docker-readonly-creds
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - aws-ecr/build-and-push-image:
+          checkout: true
+          context:
+            - aws-ecr-creds
+          create-repo: true
+          executor: node-executor
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+          remote-docker-layer-caching: true
+          repo: "${CIRCLE_PROJECT_REPONAME}"
+          setup-remote-docker: true
+          tag: "${CIRCLE_TAG}.${CIRCLE_BUILD_NUM},${CIRCLE_TAG},${CIRCLE_TAG%.[0-9]*},${CIRCLE_TAG//.[0-9]*},latest"
+
+executors:
+  node-executor:
+    docker:
+      - image: circleci/node:12
+        auth:
+          username: ${DOCKER_USERNAME}
+          password: ${DOCKER_PASSWORD}
+    working_directory: /tmp/codeql-container
+    resource_class: small
+
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: /tmp/codeql-container
+
+save_workspace: &save_workspace
+  persist_to_workspace:
+    root: /tmp/codeql-container
+    paths:
+      - "*"
+
+jobs:
+  install-scan-version:
+    executor: node-executor
+    resource_class: large
+    steps:
+      - checkout
+
+      # fetch hadolint, using local cache
+      - restore_cache:
+          key: hadolint-{{ arch }}-cache
+      - run:
+          name: Install Hadolint
+          command: |
+            if [ ! -x "${CIRCLE_WORKING_DIRECTORY}/hadolint" ]; then
+              curl -s -L -o ${CIRCLE_WORKING_DIRECTORY}/hadolint \
+                "https://github.com/hadolint/hadolint/releases/download/v1.18.0/hadolint-$(uname -s)-$(uname -m)" && \
+                chmod 700 ${CIRCLE_WORKING_DIRECTORY}/hadolint
+            fi
+      - save_cache:
+          key: hadolint-{{ arch }}-cache
+          paths:
+            - "*"
+
+      # use hadolint to scan all Dockerfiles in the repo
+      - run:
+          name: Scan Dockerfiles
+          command: |
+            git ls-files --exclude='Dockerfile*' --ignored | \
+            xargs --max-lines=1 ${CIRCLE_WORKING_DIRECTORY}/hadolint
+      - <<: *save_workspace
+
+  build:
+    executor: node-executor
+    steps:
+      - <<: *attach_workspace
+
+      # use CircleCI resources to run docker
+      - setup_remote_docker:
+          name: Setup Remote Docker
+          version: 19.03.13
+          docker_layer_caching: true
+
+      # log in to Docker Hub so we can pull images; uses docker-readonly-creds
+      # context
+      - run:
+          name: Docker Login
+          command: docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+
+      - aws-ecr/build-image:
+          checkout: false
+          ecr-login: false
+          extra-build-args: "--build-arg skip_compile=true"
+          repo: "${CIRCLE_PROJECT_REPONAME}"
+          tag: "${CIRCLE_BUILD_NUM}"
+
+  release:
+    executor: node-executor
+    steps:
+      - <<: *attach_workspace
+
+      # semantic-release needs to access github via ssh; this step will prevent
+      # the build process from failing because the github host key isn't in the
+      # known-hosts file
+      - run:
+          name: Avoid hosts unknown for github
+          command: mkdir ~/.ssh/ && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+      # `npx` lets us run semantic-release without a package.json; see
+      # .releaserc
+      - run:
+          name: Semantic Release
+          command: npx semantic-release
+
+  retrigger-builds:
+    executor: node-executor  # use setup_remote_docker step instead of aws-ecr/default executor
+    steps:
+      - checkout
+
+      - run:
+          name: Switch to latest tag
+          command: |
+            LATEST_TAG=$(git tag -l | sort -rV | head -n 1)
+            echo "export LATEST_TAG=${LATEST_TAG}" >> ${BASH_ENV}
+            git checkout -q "${LATEST_TAG}"
+            echo "Switched to ${LATEST_TAG}"
+
+      # use CircleCI resources to run docker
+      - setup_remote_docker:
+          name: Setup Remote Docker
+          version: 19.03.13
+          docker_layer_caching: false
+
+      # log in to Docker Hub so we can pull images; uses docker-readonly-creds
+      # context
+      - run:
+          name: Docker Login
+          command: docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+
+      ## Alpine
+      - aws-ecr/build-and-push-image:
+          checkout: false # already done
+          create-repo: true
+          repo: "${CIRCLE_PROJECT_REPONAME}"
+          repo-scan-on-push: true
+          setup-remote-docker: false # already done
+          tag: "${LATEST_TAG}.${CIRCLE_BUILD_NUM},${LATEST_TAG},${LATEST_TAG%.[0-9]*},${LATEST_TAG//.[0-9]*}"
+
