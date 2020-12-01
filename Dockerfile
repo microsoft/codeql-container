@@ -2,11 +2,13 @@ FROM ubuntu:20.04 AS codeql_base
 
 ARG skip_compile=false
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # tzdata install needs to be non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
 # install/update basics and python
-# hadolint ignore=SC1072
+# hadolint ignore=SC1072,DL3008
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     	software-properties-common \
@@ -32,7 +34,7 @@ RUN apt-get update -y && \
         sudo \
     	gettext && \
         apt-get clean && \
-        && rm -rf /var/lib/apt/lists/* \
+        rm -rf /var/lib/apt/lists/* && \
         ln -s /usr/bin/python3.8 /usr/bin/python && \
         ln -s /usr/bin/pip3 /usr/bin/pip 
 
@@ -44,16 +46,16 @@ RUN openssl x509 -inform pem -in Zscaler-Root-CA.pem -out /usr/local/share/ca-ce
 
 # Install .NET Core for tools/builds
 WORKDIR /tmp
-# hadolint ignore=DL3008
+# hadolint ignore=DL3008,DL3015
 RUN curl https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -s -L -o packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
-    apt-get update; \
-    apt-get install -y --no-install-recommends apt-transport-https && \
     apt-get update && \
-    rm packages-microsoft-prod.deb \
-    && rm -rf /var/lib/apt/lists/*
-# hadolint ignore=DL3008
-RUN apt-get install -y --no-install-recommends dotnet-sdk-3.1
+    apt-get install -y apt-transport-https && \
+    apt-get update && \
+    apt-get install -y dotnet-sdk-3.1 && \
+    rm packages-microsoft-prod.deb && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # hadolint ignore=DL3004,DL4006
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
@@ -94,7 +96,7 @@ ENV PATH="${CODEQL_HOME}/codeql:${PATH}"
 ENV _JAVA_OPTIONS="-Xmx2g"
 
 # Pre-compile our queries to save time later
-RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/javascript/ql/src/codeql-suites/*.qls
+RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/javascript/ql/src/codeql-suites/*.qls || echo "Skipping compile..."
 
 ENV PYTHONIOENCODING=utf-8
 ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
