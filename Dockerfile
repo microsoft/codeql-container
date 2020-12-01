@@ -6,7 +6,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # install/update basics and python
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     	software-properties-common \
     	vim \
@@ -32,6 +31,7 @@ RUN apt-get update && \
         sudo \
     	gettext && \
         apt-get clean && \
+        && rm -rf /var/lib/apt/lists/* \
         ln -s /usr/bin/python3.8 /usr/bin/python && \
         ln -s /usr/bin/pip3 /usr/bin/pip 
 
@@ -42,23 +42,23 @@ RUN openssl x509 -inform pem -in Zscaler-Root-CA.pem -out /usr/local/share/ca-ce
 	&& pip config set global.cert /etc/ssl/certs/ca-certificates.crt
 
 # Install .NET Core for tools/builds
-RUN cd /tmp && \
-    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+WORKDIR /tmp
+RUN wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     apt-get update; \
-    apt-get install -y apt-transport-https && \
+    apt-get install -y --no-install-recommends apt-transport-https && \
     apt-get update && \
     rm packages-microsoft-prod.deb
-RUN apt-get install -y dotnet-sdk-3.1
+RUN apt-get install -y --no-install-recommends dotnet-sdk-3.1
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - \
     && sudo apt-get install --no-install-recommends -y nodejs \
-    && sudo apt-get clean
+    && sudo apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Clone our setup and run scripts
 #RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
-RUN ls -al /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
 RUN pip3 install --upgrade pip \
     && pip3 install -r /usr/local/startup_scripts/requirements.txt
