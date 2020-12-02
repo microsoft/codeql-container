@@ -49,6 +49,7 @@ workflows:
       - aws-ecr/build-and-push-image:
           checkout: true
           context:
+            - docker-readonly-creds
             - aws-ecr-creds
           create-repo: true
           executor: node-executor
