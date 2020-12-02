@@ -9,7 +9,7 @@ workflows:
   weekly:
     triggers:
       - schedule:
-          cron: "0 12 * * 6" # saturday at noon
+          cron: "0 12 * * 6" # saturday at noon UTC
           filters:
             branches:
               only:
