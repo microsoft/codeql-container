@@ -9,7 +9,7 @@ workflows:
   weekly:
     triggers:
       - schedule:
-          cron: "0 12 * * 6" # saturday at noon
+          cron: "0 12 * * 6" # saturday at noon UTC
           filters:
             branches:
               only:
@@ -22,19 +22,26 @@ workflows:
 
   CircleCI:
     jobs:
-      - install-scan-version:
+      - install:
           context:
             - docker-readonly-creds
+      - test:
+          context:
+            - docker-readonly-creds
+          requires:
+            - install
       - build:
           context:
             - docker-readonly-creds
             - aws-ecr-creds
           requires:
-            - install-scan-version
+            - install
       - release:
           context:
             - docker-readonly-creds
+            - github_npm_creds
           requires:
+            - test
             - build
           filters:
             branches:
@@ -42,6 +49,7 @@ workflows:
       - aws-ecr/build-and-push-image:
           checkout: true
           context:
+            - docker-readonly-creds
             - aws-ecr-creds
           create-repo: true
           executor: node-executor
@@ -76,7 +84,7 @@ save_workspace: &save_workspace
       - "*"
 
 jobs:
-  install-scan-version:
+  install:
     executor: node-executor
     resource_class: large
     steps:
@@ -98,13 +106,24 @@ jobs:
           paths:
             - "*"
 
+      - run:
+          name: NPM Install
+          command: npm ci -q
+
+      - <<: *save_workspace
+
+  test:
+    executor: node-executor
+    steps:
+      - <<: *attach_workspace
+
       # use hadolint to scan all Dockerfiles in the repo
       - run:
           name: Scan Dockerfiles
           command: |
             git ls-files --exclude='Dockerfile*' --ignored | \
             xargs --max-lines=1 ${CIRCLE_WORKING_DIRECTORY}/hadolint
-      - <<: *save_workspace
+
 
   build:
     executor: node-executor

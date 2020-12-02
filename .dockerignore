@@ -1,2 +1,7 @@
-**/.git
-**/.circleci
+**/.git/
+**/.circleci/
+**/.gitignore
+**/.dockerignore
+**/renovate.json
+**/node_modules/
+**/*.md
