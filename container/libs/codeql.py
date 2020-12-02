@@ -70,6 +70,8 @@ class CodeQL:
             exit(ERROR_EXECUTING_CODEQL)
         version_match = search("Version: ([0-9.]+)\.", ret_string)
         if not version_match:
+            version_match = search("release ([0-9.]+)\.", ret_string)
+        if not version_match:
             logger.error("Could not determine existing codeql version")
             exit(ERROR_EXECUTING_CODEQL)
         version = f'v{version_match.group(1)}'

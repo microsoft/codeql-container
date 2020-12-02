@@ -5,6 +5,9 @@ outputfile=${2}
 language=${3}
 qlpack=${4}
 
+CONTAINER=${CONTAINER:-codeql-container}
+TAG=${TAG:-latest}
+
 RED="\033[31m"
 YELLOW="\033[33m"
 GREEN="\033[32m"
@@ -31,39 +34,39 @@ fi
 
 
 print_yellow "Getting/Updating the codeQL container\n"
-docker pull mcr.microsoft.com/cstsectools/codeql-container:latest
+docker pull ${CONTAINER}:${TAG}
 if [ $? -eq 0 ]
 then
-    print_green "\nPulled the container" 
+    print_green "\nPulled the container"
 else
     print_red "\nFailed to pull container"
     exit 1
 fi
 
 print_yellow "\nCreating the codeQL database. This might take some time depending on the size of the project..."
-docker run --rm --name codeql-container -v "${inputfile}:/opt/src" -v "${outputfile}:/opt/results" -e CODEQL_CLI_ARGS=database\ create\ --language=${3}\ /opt/results/source_db\ -s\ /opt/src mcr.microsoft.com/cstsectools/codeql-container
+docker run --rm --name codeql-container -v "${inputfile}:/opt/src" -v "${outputfile}:/opt/results" -e CODEQL_CLI_ARGS=database\ create\ --language=${3}\ /opt/results/source_db\ -s\ /opt/src ${CONTAINER}:${TAG}
 if [ $? -eq 0 ]
 then
-    print_green "\nCreated the database" 
+    print_green "\nCreated the database"
 else
     print_red "\nFailed to create the database"
     exit 1
 fi
 
-docker run --rm --name codeql-container -v "${inputfile}:/opt/src" -v "${outputfile}:/opt/results" -e CODEQL_CLI_ARGS=database\ upgrade\ /opt/results/source_db mcr.microsoft.com/cstsectools/codeql-container 
+docker run --rm --name codeql-container -v "${inputfile}:/opt/src" -v "${outputfile}:/opt/results" -e CODEQL_CLI_ARGS=database\ upgrade\ /opt/results/source_db ${CONTAINER}:${TAG}
 if [ $? -eq 0 ]
 then
-    print_green "\nUpgraded the database\n" 
+    print_green "\nUpgraded the database\n"
 else
     print_red "\nFailed to upgrade the database"
     exit 2
 fi
 
 print_yellow "\nRunning the ${qlpack} ql pack rules on the project"
-docker run --rm --name codeql-container -v ${inputfile}:/opt/src -v ${outputfile}:/opt/results -e CODEQL_CLI_ARGS=database\ analyze\ /opt/results/source_db\ --format=sarifv2\ --output=/opt/results/issues.sarif\ ${language}-${qlpack}.qls mcr.microsoft.com/cstsectools/codeql-container 
+docker run --rm --name codeql-container -v ${inputfile}:/opt/src -v ${outputfile}:/opt/results -e CODEQL_CLI_ARGS=database\ analyze\ /opt/results/source_db\ --format=sarifv2\ --output=/opt/results/issues.sarif\ ${language}-${qlpack}.qls ${CONTAINER}:${TAG}
 if [ $? -eq 0 ]
 then
-    print_green "\nQuery execution successful" 
+    print_green "\nQuery execution successful"
 else
     print_red "\nQuery execution failed\n"
     exit 3
