@@ -1,4 +1,4 @@
-FROM ubuntu:20.10@sha256:c41e8d2a4ca9cddb4398bf08c99548b9c20d238f575870ae4d3216bc55ef3ca7 AS codeql_base
+FROM ubuntu:20.04 AS codeql_base
 
 ARG skip_compile=false
 
@@ -32,10 +32,13 @@ RUN apt-get update -y && \
     	file \
         dos2unix \
         sudo \
+        jq \
+        discount \
     	gettext && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/* && \
-        ln -s /usr/bin/python3.8 /usr/bin/python
+        ln -s /usr/bin/python3.8 /usr/bin/python && \
+        ln -s /usr/bin/pip3 /usr/bin/pip
 
 # install the zscalar ca cert
 COPY Zscaler-Root-CA.pem .
