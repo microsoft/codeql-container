@@ -1,5 +1,85 @@
 {
+  "description": "Default base config for AIX",
   "extends": [
-    "github>trade-platform/renovate-config"
-  ]
+    ":pinOnlyDevDependencies",
+    ":rebaseStalePrs",
+    ":renovatePrefix",
+    "schedule:nonOfficeHours",
+    ":semanticCommits",
+    ":separatePatchReleases",
+    ":prNotPending",
+    ":automergeDigest",
+    ":automergePatch",
+    ":automergeLinters",
+    ":automergeTypes",
+    ":automergeTesters",
+    "group:recommended",
+    "helpers:disableTypesNodeMajor",
+    "docker:pinDigests"
+  ],
+  "encrypted": {
+    "npmToken": "IIZTtdILpO8xqKbQ59HWZPcxeE16XWM9cr+PHSGhWrOEV0fmd6TRGka5Xxoc0XABb/Z4eTsktcsEXcYun+m6pBj07YygI3hf5LA9rHlc2yeLQIxov1xO45aYqdk4r/pDuL8lDdEWYg5XMeTeZT6KkpnGub3eRl+cPhzc1rRgTvAZueTRQxpDNlbQyceWb+7COyfcG0WmhdWWQl22hsB3sbwx6hTnVoIW3UCEzUNhImA+fICxbuD8YCfHCY2b5GqQBxHa0Wz+cTTq1Ea/Uq41UvYTVQoPw8GLdqy42bJo7bxsVUubX7wf0tuHy8TQ92RUmPSppvChJmVE3sDCEygUvg=="
+  },
+  "packageRules": [
+    {
+      "depTypeList": [
+        "devDependencies"
+      ],
+      "prPriority": -1,
+      "extends": [
+        ":semanticCommitTypeAll(chore)"
+      ]
+    },
+    {
+      "groupName": "AWS SDK",
+      "packageNames": [
+        "aws-sdk"
+      ],
+      "schedule": [
+        "after 9pm on sunday"
+      ]
+    },
+    {
+      "groupName": "Trade Platform",
+      "packagePatterns": "^@trade-platform/",
+      "schedule": [
+        "after 6am every weekday",
+        "before 9pm every weekday"
+      ]
+    }
+  ],
+  "hostRules": [
+    {
+      "hostType": "docker",
+      "hostName": "153538148884.dkr.ecr.us-east-2.amazonaws.com",
+      "encrypted": {
+        "username": "Kyb4/7I34WWOGIH7WhIswuSDO4tJa8e0b2vh1rRX7uFOpHNHfWhyAv3TbXgapLZD46gk6zD5Be679td4/bJLICxPUYf6UUGITMBfc6hPA+9LkKbxXLOrQC5i8qk7pz2zAQdLUq4W38pwaR2q/4z+KaX1wwJo5dWeZuX7c1zyb+GNOIpPoht5hg3fvNLRRdqk2B0cR2NakgMYOxhYearKeHBke/9QXG62RgG1dkcZqnS/m2IKRqLpb6YRbR9oho1PwsnYaw9gHrFcVkZapo1DjFfaQm6Ks17iJh98wPrNjpd8/SI3i8kd6hbFOL5V5MzAHcBwno0kuRt/mIMYBuIjiw==",
+        "password": "tQ9tMqhTA5Z3WQYkeWfkx1l8HzbrL62IH6eEldDS2SvzxnvM3gJSU1zGpI1DxtcDek2s7/4rlCOQa8BfOxadmNYHEz7/pZVAMPaywyphty9EDkCMiOyv/s5ncLIDgplBhrw4DvY5DagoZTrEX3l013S9rblQmdE388xkpXwRXMGYVZcQA5gRYXleLjRGSP6j6v37JB4XQA+BpYzCzVQFor3LNJb/w7r3F9DqiKI8B6vxsudaqIkYwmPvK/EYNLwUqh9q3X3QbphSNpZNWYlj70pEJeuMxjGkT9lg4jaAr5M+brdwtpEBAllykoDHVIRu1URen7TsmFm24ihhRPEvGQ=="
+      }
+    },
+    {
+      "hostType": "docker",
+      "hostName": "quay.io",
+      "encrypted": {
+        "username": "Nm0B2niD0V1MKiOOztoT+o3z1V8OhdLnXbBmmhb0P4BJSdzjSMqkBPpcqRDQJJ3rqH90LOJFrUYhmXaCYpJJ5K6jNJ9e4ITxUgyQxT3Ct2Wvlc1VYTR+8ijiBeeyx/N5f7ldBXC+rN2net9wGoaHML9CTU6vtuS658ABkhC0IdsAtVNFIvWYl08wE5QeEFLIQAUm4LReULvdd7V71D3R1m0HWHECqJ/Tel9TuAFui7LOtd7e/1B9g3hiC43ouF2oQretobroaWfsFMFVFthlV5L99o/ODVbcwI7FXttkY6jicltVb0YW77KczXON5jMcPWp2rye8ANNZOaBeyIOXww==",
+        "password": "Xeal/ctQLilNmKE+jnWROObQoQDo7kjV2ZURczgJsAN3koFLWCabynEg6F7LibkGUvfolDBikZome2Ttt+d/bah5WC2Lh27303ZgmEsyJABFBzlXnJnX3CNOt5HOUZHGpOvk+6rQ8QcIlC9IPGYci/3KBLdHK68Ko8IoG7aOydR0YdBz3DUz6aM+4oC880o52nfqm/f2N5vd/U5uvD+kCNqAWlNi8aQeIeMJD7WZwDryV9qg3RPwbIRgajGw9KJqjVHwiINOp4ukPbTKbpaDT7YHgi+igFCN+/AI6SgCfJeVFENRc1CVmIPD4RJ5fQ6kAuMD1Db5VWCXcSMBFYYRWQ=="
+      }
+    }
+  ],
+  "dependencyDashboard": true,
+  "major": {
+    "dependencyDashboardApproval": true
+  },
+  "minor": {
+    "semanticCommitType": "feat",
+    "bumpVersion": "minor"
+  },
+  "patch": {
+    "semanticCommitType": "fix",
+    "bumpVersion": "patch"
+  },
+  "prConcurrentLimit": 5,
+  "timezone": "America/New_York",
+  "stabilityDays": 3,
+  "includeForks": true
 }
