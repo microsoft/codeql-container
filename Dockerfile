@@ -33,6 +33,7 @@ RUN apt-get update -y && \
         dos2unix \
         sudo \
         jq \
+        discount \
     	gettext && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/* && \
