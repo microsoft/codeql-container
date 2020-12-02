@@ -33,13 +33,8 @@ fi
 if [ -n "${CIRCLE_PROJECT_REPONAME:-}" ]; then
     BASE_URL+="${CIRCLE_PROJECT_REPONAME:-}/"
 fi
-COMMIT_URL=${BASE_URL}
-if [ -n "${CIRCLE_SHA1:-}" ]; then
-    COMMIT_URL+="tree/${CIRCLE_SHA1}/"
-fi
-BRANCH_URL=${BASE_URL}
 if [ -n "${CIRCLE_BRANCH:-}" -a "${CIRCLE_BRANCH:-}" != "master" -a "${CIRCLE_BRANCH:-}" != "main" ]; then
-    BRANCH_URL+="blob/$(uriencode "${CIRCLE_BRANCH:-}")/"
+    BASE_URL+="blob/$(uriencode "${CIRCLE_BRANCH:-}")/"
 fi
 
 echo
