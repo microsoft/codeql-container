@@ -1,5 +1,6 @@
 {
   "extends": [
     "github>trade-platform/renovate-config"
-  ]
+  ],
+  "includeForks": true
 }
