@@ -36,7 +36,8 @@ RUN apt-get update -y && \
     	gettext && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/* && \
-        ln -s /usr/bin/python3.8 /usr/bin/python
+        ln -s /usr/bin/python3.8 /usr/bin/python && \
+        ln -s /usr/bin/pip3 /usr/bin/pip
 
 # install the zscalar ca cert
 COPY Zscaler-Root-CA.pem .
