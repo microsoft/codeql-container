@@ -32,6 +32,7 @@ RUN apt-get update -y && \
     	file \
         dos2unix \
         sudo \
+        jq \
     	gettext && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/* && \
