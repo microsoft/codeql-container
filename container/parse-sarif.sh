@@ -24,6 +24,7 @@ jq '.runs[0].resources.rules' ${SARIF_FILE} > rules.json
 ERRORS=0
 WARNINGS=0
 RECOMMENDATIONS=0
+UNKNOWN=0
 
 BASE_URL="https://github.com/"
 if [ -n "${CIRCLE_PROJECT_USERNAME:-trade-platform}" ]; then
@@ -38,6 +39,12 @@ fi
 
 echo
 echo "# Static Code Analysis Results"
+echo
+echo "## [${CIRCLE_PROJECT_USERNAME:-trade-platform}](https://github.com/${CIRCLE_PROJECT_USERNAME:-trade-platform}) / [${CIRCLE_PROJECT_REPONAME:-}](https://github.com/${CIRCLE_PROJECT_USERNAME:-trade-platform}/${CIRCLE_PROJECT_REPONAME:-})   "
+if [ -n "${CIRCLE_BUILD_URL}" ]; then
+    echo
+    echo "## [Build ${CIRCLE_BUILD_NUM}](${CIRCLE_BUILD_URL})"
+fi
 echo
 echo $(date)
 echo
@@ -56,25 +63,31 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
 
     if [ "${SEVERITY}" == "error" ]; then
         ERRORS=$((${ERRORS} + 1))
-        ICON=":bangbang:"
+        ICON="‼️ "
     elif [ "${SEVERITY}" == "warning" ]; then
         WARNINGS=$((${WARNINGS} + 1))
-        ICON=":warning:"
+        ICON="⚠️ "
     elif [ "${SEVERITY}" == "recommendation" ]; then
         RECOMMENDATIONS=$((${RECOMMENDATIONS} + 1))
-        ICON=":cry:"
+        ICON="😢"
     else
-        ICON=":question:"
+        UNKNOWN=$((${UNKNOWN} + 1))
+        ICON="❔"
     fi
 
     if [ "${LAST_RULE}" != "${TRIGGERED_RULE_ID}" ]; then
+        LINK="https://help.semmle.com/wiki/display/JS/$(uriencode "${NAME}")"
         echo
-        echo "## ${ICON} ${NAME} (${LEVEL})"
+        echo "## ${ICON} [${NAME}](${LINK}) (${SEVERITY} / ${LEVEL})"
 
         if [ "$(echo ${PROPERTIES} | jq -r 'has("tags")')" = "true" ]; then
             echo
             for TAG in $(echo ${PROPERTIES} | jq -r -c '.tags[]'); do
-                echo " - \`${TAG}\`"
+                if [[ ${TAG} =~ ^external\/cwe\/cwe- ]]; then
+                    NUMBER=$(basename ${TAG} | cut -d '-' -f 2)
+                    TAG="[${TAG}](https://cwe.mitre.org/data/definitions/${NUMBER}.html)"
+                fi
+                echo " - ${TAG}"
             done
         fi
 
@@ -82,44 +95,43 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
         printf "${DESCRIPTION}"
         echo
         echo
-        echo "| File | Location | Comment | Context |"
-        echo "|---|---|---|---|"
+        echo "| File | Location | Comment |"
+        echo "|------|----------|---------|"
     fi
 
     LAST_RULE="${TRIGGERED_RULE_ID}"
 
     COMMENT=$(echo ${TRIGGERED_RULE} | jq -r '.message.text')
 
-    for LOCATION in $(echo ${TRIGGERED_RULE} | jq -r -c '.locations[]'); do
-        FILE=$(echo ${LOCATION} | jq -r '.physicalLocation.fileLocation.uri')
-        START_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startLine')
-        START_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startColumn')
-        END_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.endLine')
-        END_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.endColumn')
-
-        echo "| [${FILE}](${BASE_URL}${FILE}) | [${START_L}:${START_C}](${BASE_URL}${FILE}#${START_L}) | ${COMMENT} | |"
-    done
     if [ "$(echo ${TRIGGERED_RULE} | jq -r 'has("relatedLocations")')" = "true" ]; then
         for LOCATION in $(echo ${TRIGGERED_RULE} | jq -r -c '.relatedLocations[]'); do
             FILE=$(echo ${LOCATION} | jq -r '.physicalLocation.fileLocation.uri')
             START_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startLine')
-            START_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startColumn')
-            END_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.endLine')
-            END_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.endColumn')
-            CONTEXT=$(echo ${LOCATION} | jq -r '.message.text')
-    
-            echo "| [${FILE}](${BASE_URL}${FILE}) | [${START_L}:${START_C}](${BASE_URL}${FILE}#${START_L}) | ${COMMENT} | ${CONTEXT} |"
+            ANCHOR=$(echo ${LOCATION} | jq -r '.message.text')
+            COMMENT=$(echo "${COMMENT}" | sed -e "s;\\[${ANCHOR}\\]([0-9]);[${ANCHOR}](${BASE_URL}${FILE}#L${START_L});")
         done
     fi
 
+    for LOCATION in $(echo ${TRIGGERED_RULE} | jq -r -c '.locations[]'); do
+        FILE=$(echo ${LOCATION} | jq -r '.physicalLocation.fileLocation.uri')
+        START_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startLine')
+        START_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startColumn')
+
+        echo "| [${FILE}](${BASE_URL}${FILE}) | [${START_L}:${START_C}](${BASE_URL}${FILE}#L${START_L}) | ${COMMENT} |"
+    done
 done
 
 echo
 echo "## Summary"
 echo
-echo Errors: ${ERRORS}
-echo Warnings: ${WARNINGS}
-echo Recommendations: ${RECOMMENDATIONS}
+echo "|    | Type            | Count |"
+echo "|----|-----------------|-------|"
+if [ ${ERRORS} -gt 0 ]; then echo "| ‼️  | Errors          |   ${ERRORS}   |"; fi
+if [ ${WARNINGS} -gt 0 ]; then echo "| ⚠️  | Warnings        |   ${WARNINGS}   |"; fi
+if [ ${RECOMMENDATIONS} -gt 0 ]; then echo "| 😢 | Recommendations |   ${RECOMMENDATIONS}   |"; fi
+if [ ${UNKNOWN} -gt 0 ]; then echo "| ❔ | Unknown         |   ${UNKNOWN}   |"; fi
 echo
+
+rm -f rules.json
 
 exit ${ERRORS}
