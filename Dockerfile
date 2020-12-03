@@ -15,6 +15,7 @@ RUN apt-get update -y && \
     	vim \
     	curl \
     	git \
+        ssh \
     	build-essential \
     	unzip \
     	apt-transport-https \
