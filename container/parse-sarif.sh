@@ -50,6 +50,7 @@ echo $(date)
 echo
 
 LAST_RULE=
+LAST_RULE_COUNT=0
 IFS=$'\n'
 for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
     TRIGGERED_RULE_ID=$(echo ${TRIGGERED_RULE} | jq -r '.ruleId')
@@ -76,6 +77,12 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
     fi
 
     if [ "${LAST_RULE}" != "${TRIGGERED_RULE_ID}" ]; then
+
+        if [ ${LAST_RULE_COUNT} -ge 10 ]; then
+            echo
+            echo "_There are $(( ${LAST_RULE_COUNT} - 10 )) more locations like this..._"
+        fi
+
         LINK="https://help.semmle.com/wiki/display/JS/$(uriencode "${NAME}")"
         echo
         echo "## ${ICON} [${NAME}](${LINK}) (${SEVERITY} / ${LEVEL})"
@@ -97,6 +104,7 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
         echo
         echo "| File | Location | Comment |"
         echo "|------|----------|---------|"
+        LAST_RULE_COUNT=0
     fi
 
     LAST_RULE="${TRIGGERED_RULE_ID}"
@@ -117,9 +125,18 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
         START_L=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startLine')
         START_C=$(echo ${LOCATION} | jq -r '.physicalLocation.region.startColumn')
 
-        echo "| [${FILE}](${BASE_URL}${FILE}) | [${START_L}:${START_C}](${BASE_URL}${FILE}#L${START_L}) | ${COMMENT} |"
+        if [ ${LAST_RULE_COUNT} -lt 10 ]; then
+            echo "| [${FILE}](${BASE_URL}${FILE}) | [${START_L}:${START_C}](${BASE_URL}${FILE}#L${START_L}) | ${COMMENT} |"
+        fi
+
+        LAST_RULE_COUNT=$(( ${LAST_RULE_COUNT} + 1 ))
     done
 done
+
+if [ ${LAST_RULE_COUNT} -ge 10 ]; then
+    echo
+    echo "_There are $(( ${LAST_RULE_COUNT} - 10 )) more locations like this..._"
+fi
 
 echo
 echo "## Summary"
