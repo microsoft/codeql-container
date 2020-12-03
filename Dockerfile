@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS codeql_base
+FROM ubuntu:20.04@sha256:4e4bc990609ed865e07afc8427c30ffdddca5153fd4e82c20d8f0783a291e241 AS codeql_base
 
 ARG skip_compile=false
 
