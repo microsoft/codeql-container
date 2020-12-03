@@ -80,7 +80,7 @@ for TRIGGERED_RULE in $(jq -r -c '.runs[0].results[]' ${SARIF_FILE}); do
 
         if [ ${LAST_RULE_COUNT} -ge 10 ]; then
             echo
-            echo "_There are $(( ${LAST_RULE_COUNT} - 10 )) more locations like this..._"
+            echo "_There are $(( ${LAST_RULE_COUNT} - 9 )) more locations like this..._"
         fi
 
         LINK="https://help.semmle.com/wiki/display/JS/$(uriencode "${NAME}")"
@@ -135,7 +135,7 @@ done
 
 if [ ${LAST_RULE_COUNT} -ge 10 ]; then
     echo
-    echo "_There are $(( ${LAST_RULE_COUNT} - 10 )) more locations like this..._"
+    echo "_There are $(( ${LAST_RULE_COUNT} - 9 )) more locations like this..._"
 fi
 
 echo
