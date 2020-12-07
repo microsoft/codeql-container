@@ -35,6 +35,8 @@ RUN apt-get update -y && \
         sudo \
         jq \
         discount \
+        default-jdk \
+        maven \
     	gettext && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/* && \
@@ -99,7 +101,8 @@ ENV PATH="${CODEQL_HOME}/codeql:${PATH}"
 ENV _JAVA_OPTIONS="-Xmx2g"
 
 # Pre-compile our queries to save time later
-RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/javascript/ql/src/codeql-suites/*.qls || echo "Skipping compile..."
+RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/javascript/ql/src/codeql-suites/*.qls || echo "Skipping JavaScript compile..."
+RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/java/ql/src/codeql-suites/*.qls || echo "Skipping Java compile..."
 
 ENV PYTHONIOENCODING=utf-8
 ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
