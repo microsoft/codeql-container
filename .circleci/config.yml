@@ -190,12 +190,12 @@ jobs:
           name: Docker Login
           command: docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
 
-      ## Alpine
+      ## Rebuild
       - aws-ecr/build-and-push-image:
           checkout: false # already done
           create-repo: true
           repo: "${CIRCLE_PROJECT_REPONAME}"
           repo-scan-on-push: true
           setup-remote-docker: false # already done
-          tag: "${LATEST_TAG}.${CIRCLE_BUILD_NUM},${LATEST_TAG},${LATEST_TAG%.[0-9]*},${LATEST_TAG//.[0-9]*}"
+          tag: "${LATEST_TAG}.${CIRCLE_BUILD_NUM},${LATEST_TAG},${LATEST_TAG%.[0-9]*},${LATEST_TAG//.[0-9]*},latest"
 
