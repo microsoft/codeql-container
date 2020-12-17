@@ -69,8 +69,8 @@ RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 --ram=40
 RUN [ "${skip_compile}" != "true" ] && codeql query compile --threads=0 --ram=4096 ${CODEQL_HOME}/codeql-repo/java/ql/src/codeql-suites/*.qls || echo "Skipping Java compile..."
 
 RUN find ${CODEQL_HOME} -name .git -type d -print0 | xargs -0 -I {} rm -rf "{}" \; && \
-    rm -rf ${CODEQL_HOME}/codeql/cpp ${CODEQL_HOME}/codeql/csharp ${CODEQL_HOME}/codeql/python ${CODEQL_HOME}/codeql/go ${CODEQL_HOME}/codeql/csv ${CODEQL_HOME}/codeql/xml ${CODEQL_HOME}/codeql/legacy-upgrades && \
-    rm -rf ${CODEQL_HOME}/codeql-repo/cpp ${CODEQL_HOME}/codeql-repo/csharp ${CODEQL_HOME}/codeql-repo/python ${CODEQL_HOME}/codeql-repo/go ${CODEQL_HOME}/codeql-repo/csv ${CODEQL_HOME}/codeql-repo/xml ${CODEQL_HOME}/codeql-repo/docs ${CODEQL_HOME}/codeql-repo/javascript/ql/test ${CODEQL_HOME}/codeql-repo/javascript/extractor/tests ${CODEQL_HOME}/codeql-repo/java/ql/test
+    rm -rf ${CODEQL_HOME}/codeql/cpp ${CODEQL_HOME}/codeql/csharp ${CODEQL_HOME}/codeql/python ${CODEQL_HOME}/codeql/go ${CODEQL_HOME}/codeql/csv ${CODEQL_HOME}/codeql/legacy-upgrades && \
+    rm -rf ${CODEQL_HOME}/codeql-repo/cpp ${CODEQL_HOME}/codeql-repo/csharp ${CODEQL_HOME}/codeql-repo/python ${CODEQL_HOME}/codeql-repo/go ${CODEQL_HOME}/codeql-repo/csv ${CODEQL_HOME}/codeql-repo/docs ${CODEQL_HOME}/codeql-repo/javascript/ql/test ${CODEQL_HOME}/codeql-repo/javascript/extractor/tests ${CODEQL_HOME}/codeql-repo/java/ql/test
 
 
 
