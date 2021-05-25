@@ -40,7 +40,7 @@ class CodeQL:
             download_url = f'https://github.com/github/codeql-cli-binaries/releases/download/{github_version.title}/codeql-win64.zip'
             download_path = f'{self.TEMP_DIR}/codeql_windows.zip'
         else:
-            exit(ERROR_UNKNOWN_OS)
+            exit(self.ERROR_UNKNOWN_OS)
 
         logger.info(f'Downloading codeql-cli version {github_version.title}...')
         check_output_wrapper(f"wget -q {download_url} -O {download_path}", shell=True).decode("utf-8")
@@ -61,17 +61,17 @@ class CodeQL:
         ret2 = check_output_wrapper(f'git clone {self.CODEQL_GO_QUERIES_URL} {codeql_go_repo_dir}', shell=True)
         if ret1 is CalledProcessError or ret2 is CalledProcessError:
             logger.error("Could not run git command")
-            exit(ERROR_GIT_COMMAND)
+            exit(self.ERROR_GIT_COMMAND)
 
     def get_current_local_version(self):
         ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql version', shell=True).decode("utf-8")
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
-            exit(ERROR_EXECUTING_CODEQL)
+            exit(self.ERROR_EXECUTING_CODEQL)
         version_match = search("Version: ([0-9.]+)\.", ret_string)
         if not version_match:
             logger.error("Could not determine existing codeql version")
-            exit(ERROR_EXECUTING_CODEQL)
+            exit(self.ERROR_EXECUTING_CODEQL)
         version = f'v{version_match.group(1)}'
         return version
 
@@ -91,5 +91,5 @@ class CodeQL:
         ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql {args}', shell=True)
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
-            exit(ERROR_EXECUTING_CODEQL)
+            exit(self.ERROR_EXECUTING_CODEQL)
         return bytearray(ret_string).decode('utf-8')
