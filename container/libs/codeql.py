@@ -68,7 +68,7 @@ class CodeQL:
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
             exit(ERROR_EXECUTING_CODEQL)
-        version_match = search("Version: ([0-9.]+)\.", ret_string)
+        version_match = search("release ([0-9.]+)\.", ret_string)
         if not version_match:
             logger.error("Could not determine existing codeql version")
             exit(ERROR_EXECUTING_CODEQL)
