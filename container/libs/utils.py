@@ -40,7 +40,7 @@ def check_output_wrapper(*args, **kwargs):
         sys.exit(ERROR_EXECUTING_COMMAND);
         
 def wipe_and_create_dir(dirname):
-    rmtree(dirname)
+    rmtree(dirname, True)
     mkdir(dirname)
 
 def get_logger(log_level=INFO):
