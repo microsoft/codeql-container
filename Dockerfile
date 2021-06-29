@@ -35,12 +35,12 @@ RUN apt-get update && \
         ln -s /usr/bin/python3.8 /usr/bin/python && \
         ln -s /usr/bin/pip3 /usr/bin/pip 
 
-# Install .NET Core for tools/builds
+# Install .NET Core and Java for tools/builds
 RUN cd /tmp && \
     wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
     apt-get update; \
-    apt-get install -y apt-transport-https && \
+    apt-get install -y default-jdk apt-transport-https && \
     apt-get update && \
     rm packages-microsoft-prod.deb
 RUN apt-get install -y dotnet-sdk-3.1
@@ -63,9 +63,9 @@ RUN mkdir -p ${CODEQL_HOME} \
     /opt/codeql
 
 # get the latest codeql queries and record the HEAD
-RUN git clone https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
+RUN git clone --depth 1 https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-repo-last-commit
-RUN git clone https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
+RUN git clone --depth 1 https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-go-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-go-repo-last-commit
 
 RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \

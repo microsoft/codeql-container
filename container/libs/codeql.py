@@ -68,6 +68,7 @@ class CodeQL:
         if ret_string is CalledProcessError:
             logger.error("Could not run codeql command")
             exit(self.ERROR_EXECUTING_CODEQL)
+            
         version_match = search("toolchain release ([0-9.]+)\.", ret_string)
         if not version_match:
             logger.error("Could not determine existing codeql version")
@@ -85,7 +86,7 @@ class CodeQL:
         ret1 = check_output_wrapper(f'unzip {download_path} -d {codeql_dir}', shell=True)
         
     def precompile_queries(self):
-        execute_codeql_command(f' query compile --search-path {self.CODEQL_HOME} {self.CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls')
+        self.execute_codeql_command(f' query compile --search-path {self.CODEQL_HOME} {self.CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls')
 
     def execute_codeql_command(self, args):
         ret_string = check_output_wrapper(f'{self.CODEQL_HOME}/codeql/codeql {args}', shell=True)
