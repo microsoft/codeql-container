@@ -38,7 +38,7 @@ docker run --rm --name codeql-container -e CODEQL_CLI_ARGS="resolve qlpacks"  mc
 
 ### Downloading a pre-built container
 
-We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: ```mcr.microsoft.com/codeql/codeql-container```.
+We keep updating the docker image periodically and uploading it to the Microsoft Container Registry at: ```mcr.microsoft.com/cstsectools/codeql-container```.
 
 You can pull the image by running the command:
 ```
