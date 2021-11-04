@@ -50,10 +50,8 @@ $ docker pull mcr.microsoft.com/cstsectools/codeql-container
 
 Building the container should be pretty straightforward.
 
-```
-git clone https://github.com/microsoft/codeql-container
-cd codeql-container
-docker build . -f Dockerfile -t codeql-container
+```sh
+docker build https://github.com/microsoft/codeql-container.git#main -t codeql-container
 ```
 
 ### Basic Usage
