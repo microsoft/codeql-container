@@ -63,7 +63,7 @@ RUN mkdir -p ${CODEQL_HOME} \
     /opt/codeql
 
 # get the latest codeql queries and record the HEAD
-RUN git clone --depth 1 https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
+RUN git clone --depth 1 --branch codeql-cli/$(cat /tmp/codeql_version) https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-repo-last-commit
 RUN git clone --depth 1 https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-go-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-go-repo-last-commit
