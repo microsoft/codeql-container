@@ -34,10 +34,10 @@ class CodeQL:
         download_url = None
         download_path = None
         if os_name == 'posix':
-            download_url = f'https://github.com/github/codeql-cli-binaries/releases/download/{github_version.title}/codeql-linux64.zip'
+            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.title}/codeql-linux64.zip'
             download_path = f'{self.TEMP_DIR}/codeql_linux.zip'
         elif os_name == 'nt':
-            download_url = f'https://github.com/github/codeql-cli-binaries/releases/download/{github_version.title}/codeql-win64.zip'
+            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.title}/codeql-win64.zip'
             download_path = f'{self.TEMP_DIR}/codeql_windows.zip'
         else:
             exit(self.ERROR_UNKNOWN_OS)
