@@ -4,8 +4,11 @@ LABEL maintainer="Github codeql team"
 # tzdata install needs to be non-interactive
 ENV DEBIAN_FRONTEND=noninteractive
 
-# install/update basics and python
-RUN apt-get update && \
+ARG USERNAME=codeql
+
+# create user, install/update basics and python
+RUN adduser --system ${USERNAME} && \
+    apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     	software-properties-common \
@@ -80,4 +83,11 @@ RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-
 RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-go-repo/ql/src/codeql-suites/*.qls --additional-packs=.
 
 ENV PYTHONIOENCODING=utf-8
+
+# Grant other users access to the CodeQL Repositories
+RUN chmod -R 777 ${CODEQL_HOME}/codeql-repo &&  \
+    chmod -R 777 ${CODEQL_HOME}/codeql-go-repo
+
+USER ${USERNAME}
+
 ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
