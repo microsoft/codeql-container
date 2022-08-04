@@ -5,9 +5,10 @@ LABEL maintainer="Github codeql team"
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG USERNAME=codeql
+ENV CODEQL_HOME /usr/local/codeql-home
 
 # create user, install/update basics and python
-RUN adduser --system ${USERNAME} && \
+RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -57,10 +58,10 @@ RUN pip3 install --upgrade pip \
     && pip3 install -r /usr/local/startup_scripts/requirements.txt
 
 # Install latest codeQL
-ENV CODEQL_HOME /usr/local/codeql-home
+
 # record the latest version of the codeql-cli
 RUN python3 /usr/local/startup_scripts/get-latest-codeql-version.py > /tmp/codeql_version
-RUN mkdir -p ${CODEQL_HOME} \
+RUN mkdir -p \
     ${CODEQL_HOME}/codeql-repo \
     ${CODEQL_HOME}/codeql-go-repo \
     /opt/codeql
@@ -84,9 +85,8 @@ RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-go-repo/ql/src/codeql
 
 ENV PYTHONIOENCODING=utf-8
 
-# Grant other users access to the CodeQL Repositories
-RUN chmod -R 777 ${CODEQL_HOME}/codeql-repo &&  \
-    chmod -R 777 ${CODEQL_HOME}/codeql-go-repo
+# Change ownership of all files and directories within CODEQL_HOME to the codeql user
+RUN chown -R ${USERNAME}:${USERNAME} ${CODEQL_HOME}
 
 USER ${USERNAME}
 
