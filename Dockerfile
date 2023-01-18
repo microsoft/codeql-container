@@ -12,32 +12,33 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    	software-properties-common \
-    	vim \
-    	curl \
-    	wget \
-    	git \
-    	build-essential \
-    	unzip \
-    	apt-transport-https \
-        python3.8 \
-    	python3-venv \
-    	python3-pip \
-    	python3-setuptools \
-        python3-dev \
-    	gnupg \
-    	g++ \
-    	make \
-    	gcc \
-    	apt-utils \
-        rsync \
-    	file \
-        dos2unix \
-    	gettext && \
-        apt-get clean && \
-        rm -f /usr/bin/python /usr/bin/pip && \
-        ln -s /usr/bin/python3.8 /usr/bin/python && \
-        ln -s /usr/bin/pip3 /usr/bin/pip 
+    software-properties-common \
+    nodejs \
+    vim \
+    curl \
+    wget \
+    git \
+    build-essential \
+    unzip \
+    apt-transport-https \
+    python3.8 \
+    python3-venv \
+    python3-pip \
+    python3-setuptools \
+    python3-dev \
+    gnupg \
+    g++ \
+    make \
+    gcc \
+    apt-utils \
+    rsync \
+    file \
+    dos2unix \
+    gettext && \
+    apt-get clean && \
+    rm -f /usr/bin/python /usr/bin/pip && \
+    ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/pip3 /usr/bin/pip 
 
 # Install .NET Core and Java for tools/builds
 RUN cd /tmp && \
