@@ -64,7 +64,6 @@ RUN pip3 install --upgrade pip \
 RUN python3 /usr/local/startup_scripts/get-latest-codeql-version.py > /tmp/codeql_version
 RUN mkdir -p \
     ${CODEQL_HOME}/codeql-repo \
-    ${CODEQL_HOME}/codeql-go-repo \
     /opt/codeql
 
 # get the latest codeql queries and record the HEAD
