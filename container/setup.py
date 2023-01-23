@@ -38,8 +38,8 @@ def setup():
     # check version and download the latest version
     get_latest_codeql(args)
     logger.info("End setup...")
+
 def get_latest_codeql(args):
-    # what version do we have?
     codeql = CodeQL(CODEQL_HOME)
     current_installed_version = codeql.get_current_local_version()
     logger.info(f'Current codeql version: {current_installed_version}')
