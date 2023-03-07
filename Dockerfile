@@ -1,4 +1,4 @@
-FROM ubuntu:23.04 AS codeql_base
+FROM ubuntu:22.04 AS codeql_base
 LABEL maintainer="Github codeql team"
 
 # tzdata install needs to be non-interactive
@@ -47,7 +47,7 @@ RUN cd /tmp && \
     apt-get install -y default-jdk apt-transport-https && \
     apt-get update && \
     rm packages-microsoft-prod.deb
-RUN apt-get install -y dotnet-sdk-7.0
+RUN apt-get install -y dotnet-sdk-6.0
 
 # Clone our setup and run scripts
 #RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
