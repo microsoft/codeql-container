@@ -38,15 +38,17 @@ def setup():
     # check version and download the latest version
     get_latest_codeql(args)
     logger.info("End setup...")
+
 def get_latest_codeql(args):
-    # what version do we have?
     codeql = CodeQL(CODEQL_HOME)
     current_installed_version = codeql.get_current_local_version()
     logger.info(f'Current codeql version: {current_installed_version}')
-    latest_online_version = codeql.get_latest_codeql_github_version()
-    if current_installed_version != latest_online_version.tag_name and args.check_latest_cli:
-        # we got a newer version online, download and install it
-        codeql.download_and_install_latest_codeql(latest_online_version)
+    # ensure we only query for the latest codeql cli version if we might actually update it
+    if args.check_latest_cli:
+        latest_online_version = codeql.get_latest_codeql_github_version()
+        if current_installed_version != latest_online_version.tag_name and args.check_latest_cli:
+            # we got a newer version online, download and install it
+            codeql.download_and_install_latest_codeql(latest_online_version)
     # get the latest queries regardless (TODO: Optimize by storing and checking the last commit hash?)
     if args.check_latest_queries:
         codeql.download_and_install_latest_codeql_queries()
