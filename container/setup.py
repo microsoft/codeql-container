@@ -46,7 +46,7 @@ def get_latest_codeql(args):
     # ensure we only query for the latest codeql cli version if we might actually update it
     if args.check_latest_cli:
         latest_online_version = codeql.get_latest_codeql_github_version()
-        if current_installed_version != latest_online_version.tag_name and args.check_latest_cli:
+        if current_installed_version != latest_online_version.tag_name:
             # we got a newer version online, download and install it
             codeql.download_and_install_latest_codeql(latest_online_version)
     # get the latest queries regardless (TODO: Optimize by storing and checking the last commit hash?)
