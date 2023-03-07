@@ -34,15 +34,15 @@ class CodeQL:
         download_url = None
         download_path = None
         if os_name == 'posix':
-            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.title}/codeql-linux64.zip'
+            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.tag_name}/codeql-linux64.zip'
             download_path = f'{self.TEMP_DIR}/codeql_linux.zip'
         elif os_name == 'nt':
-            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.title}/codeql-win64.zip'
+            download_url = f'{self.CODEQL_GITHUB_URL}/releases/download/{github_version.tag_name}/codeql-win64.zip'
             download_path = f'{self.TEMP_DIR}/codeql_windows.zip'
         else:
             exit(self.ERROR_UNKNOWN_OS)
 
-        logger.info(f'Downloading codeql-cli version {github_version.title}...')
+        logger.info(f'Downloading codeql-cli version {github_version.tag_name}...')
         check_output_wrapper(f"wget -q {download_url} -O {download_path}", shell=True).decode("utf-8")
         self.install_codeql_cli(download_path)
         #rm /tmp/codeql_linux.zip
@@ -77,7 +77,7 @@ class CodeQL:
         return version
 
     def get_latest_codeql_github_version(self):
-        return get_latest_github_repo_version("github/codeql-cli-binaries")
+        return get_latest_github_repo_version("github", "codeql-cli-binaries")
 
     def install_codeql_cli(self, download_path):
         logger.info("Installing codeql-cli...")

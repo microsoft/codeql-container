@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS codeql_base
+FROM ubuntu:23.04 AS codeql_base
 LABEL maintainer="Github codeql team"
 
 # tzdata install needs to be non-interactive
@@ -16,7 +16,7 @@ RUN apt-get update && \
     	build-essential \
     	unzip \
     	apt-transport-https \
-        python3.8 \
+        python3.10 \
     	python3-venv \
     	python3-pip \
     	python3-setuptools \
@@ -43,15 +43,14 @@ RUN cd /tmp && \
     apt-get install -y default-jdk apt-transport-https && \
     apt-get update && \
     rm packages-microsoft-prod.deb
-RUN apt-get install -y dotnet-sdk-3.1
+RUN apt-get install -y dotnet-sdk-7.0
 
 # Clone our setup and run scripts
 #RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
 RUN ls -al /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
-RUN pip3 install --upgrade pip \
-    && pip3 install -r /usr/local/startup_scripts/requirements.txt
+RUN pip3 install -r /usr/local/startup_scripts/requirements.txt
 
 # Install latest codeQL
 ENV CODEQL_HOME /usr/local/codeql-home

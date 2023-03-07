@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import sys
 from time import sleep
 from libs.utils import get_env_variable, check_output_wrapper, get_logger
 from libs.codeql import *
