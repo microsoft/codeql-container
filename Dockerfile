@@ -79,8 +79,8 @@ RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-
 ENV PYTHONIOENCODING=utf-8
 
 # Change ownership of all files and directories within CODEQL_HOME to the codeql user
-RUN chown -R ${USERNAME}:${USERNAME} ${CODEQL_HOME}
+#RUN chown -R ${USERNAME}:${USERNAME} ${CODEQL_HOME}
 
 USER ${USERNAME}
 
-ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
+ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"] 
