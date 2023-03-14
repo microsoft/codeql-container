@@ -25,7 +25,7 @@ The results will be stored in /tmp/django/results/issues.sarif.
 
 Analyze the Javascript project express located in /tmp/express/src by running the extended security QL pack on it:
 ```
-scripts/unix/run_qlpack.sh /tmp/express/src /tmp/express/results javascript security-extended
+scripts/unix/run_ql_suite.sh /tmp/express/src /tmp/express/results javascript security-extended
 ```
 
 The results will be stored in /tmp/express/results/issues.sarif
