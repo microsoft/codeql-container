@@ -49,7 +49,6 @@ RUN cd /tmp && \
 RUN apt-get install -y dotnet-sdk-6.0
 
 # Clone our setup and run scripts
-RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
 
