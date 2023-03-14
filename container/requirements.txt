@@ -1,1 +1,2 @@
-PyGithub==1.43.7
+ghapi==1.0.3
+python-dateutil==2.8.2

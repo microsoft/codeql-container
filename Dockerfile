@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS codeql_base
+FROM ubuntu:22.04 AS codeql_base
 LABEL maintainer="Github codeql team"
 
 # tzdata install needs to be non-interactive
@@ -12,33 +12,31 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-    software-properties-common \
-    nodejs \
-    vim \
-    curl \
-    wget \
-    git \
-    build-essential \
-    unzip \
-    apt-transport-https \
-    python3.8 \
-    python3-venv \
-    python3-pip \
-    python3-setuptools \
-    python3-dev \
-    gnupg \
-    g++ \
-    make \
-    gcc \
-    apt-utils \
-    rsync \
-    file \
-    dos2unix \
-    gettext && \
-    apt-get clean && \
-    rm -f /usr/bin/python /usr/bin/pip && \
-    ln -s /usr/bin/python3.8 /usr/bin/python && \
-    ln -s /usr/bin/pip3 /usr/bin/pip 
+    	software-properties-common \
+        nodejs \
+    	vim \
+    	curl \
+    	wget \
+    	git \
+    	build-essential \
+    	unzip \
+    	apt-transport-https \
+        python3.10 \
+    	python3-venv \
+    	python3-pip \
+    	python3-setuptools \
+        python3-dev \
+        python-is-python3 \
+    	gnupg \
+    	g++ \
+    	make \
+    	gcc \
+    	apt-utils \
+        rsync \
+    	file \
+        dos2unix \
+    	gettext && \
+        apt-get clean
 
 # Install .NET Core and Java for tools/builds
 RUN cd /tmp && \
@@ -48,15 +46,13 @@ RUN cd /tmp && \
     apt-get install -y default-jdk apt-transport-https && \
     apt-get update && \
     rm packages-microsoft-prod.deb
-RUN apt-get install -y dotnet-sdk-3.1
+RUN apt-get install -y dotnet-sdk-6.0
 
 # Clone our setup and run scripts
-#RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
-RUN ls -al /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
-RUN pip3 install --upgrade pip \
-    && pip3 install -r /usr/local/startup_scripts/requirements.txt
+
+RUN pip3 install -r /usr/local/startup_scripts/requirements.txt
 
 # Install latest codeQL
 
@@ -83,8 +79,8 @@ RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-
 ENV PYTHONIOENCODING=utf-8
 
 # Change ownership of all files and directories within CODEQL_HOME to the codeql user
-RUN chown -R ${USERNAME}:${USERNAME} ${CODEQL_HOME}
+#RUN chown -R ${USERNAME}:${USERNAME} ${CODEQL_HOME}
 
 USER ${USERNAME}
 
-ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"]
+ENTRYPOINT ["python3", "/usr/local/startup_scripts/startup.py"] 
