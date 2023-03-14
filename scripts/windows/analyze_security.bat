@@ -38,7 +38,7 @@ if %errorlevel% GTR 0 (
 )
 
 call :print_yellow "Running the Quality and Security rules on the project"
-start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/results/source_db --format=sarifv2 --output=/opt/results/issues.sarif %language%-security-and-quality.qls" mcr.microsoft.com/cstsectools/codeql-container
+start /W /B docker run --rm --name codeql-container -v "%inputfile%:/opt/src" -v "%outputfile%:/opt/results" -e CODEQL_CLI_ARGS="database analyze /opt/results/source_db --format=sarifv2.1.0 --output=/opt/results/issues.sarif %language%-security-and-quality.qls" mcr.microsoft.com/cstsectools/codeql-container
 if %errorlevel% GTR 0 (
     call :print_red "Failed to run the query on the database"    
     exit /b %errorlevel%
