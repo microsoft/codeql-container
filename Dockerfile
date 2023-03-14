@@ -13,6 +13,7 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
     	software-properties-common \
+        nodejs \
     	vim \
     	curl \
     	wget \
@@ -25,6 +26,7 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     	python3-pip \
     	python3-setuptools \
         python3-dev \
+        python-is-python3 \
     	gnupg \
     	g++ \
     	make \
@@ -34,10 +36,7 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     	file \
         dos2unix \
     	gettext && \
-        apt-get clean && \
-        rm -f /usr/bin/python /usr/bin/pip && \
-        ln -s /usr/bin/python3.8 /usr/bin/python && \
-        ln -s /usr/bin/pip3 /usr/bin/pip 
+        apt-get clean
 
 # Install .NET Core and Java for tools/builds
 RUN cd /tmp && \
@@ -50,10 +49,10 @@ RUN cd /tmp && \
 RUN apt-get install -y dotnet-sdk-6.0
 
 # Clone our setup and run scripts
-#RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
+RUN git clone https://github.com/microsoft/codeql-container /usr/local/startup_scripts
 RUN mkdir -p /usr/local/startup_scripts
-RUN ls -al /usr/local/startup_scripts
 COPY container /usr/local/startup_scripts/
+
 RUN pip3 install -r /usr/local/startup_scripts/requirements.txt
 
 # Install latest codeQL
@@ -62,14 +61,11 @@ RUN pip3 install -r /usr/local/startup_scripts/requirements.txt
 RUN python3 /usr/local/startup_scripts/get-latest-codeql-version.py > /tmp/codeql_version
 RUN mkdir -p \
     ${CODEQL_HOME}/codeql-repo \
-    ${CODEQL_HOME}/codeql-go-repo \
     /opt/codeql
 
 # get the latest codeql queries and record the HEAD
 RUN git clone --depth 1 https://github.com/github/codeql ${CODEQL_HOME}/codeql-repo && \
     git --git-dir ${CODEQL_HOME}/codeql-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-repo-last-commit
-RUN git clone --depth 1 https://github.com/github/codeql-go ${CODEQL_HOME}/codeql-go-repo && \
-    git --git-dir ${CODEQL_HOME}/codeql-go-repo/.git log --pretty=reference -1 > /opt/codeql/codeql-go-repo-last-commit
 
 RUN CODEQL_VERSION=$(cat /tmp/codeql_version) && \
     wget -q https://github.com/github/codeql-cli-binaries/releases/download/${CODEQL_VERSION}/codeql-linux64.zip -O /tmp/codeql_linux.zip && \
@@ -80,7 +76,6 @@ ENV PATH="${CODEQL_HOME}/codeql:${PATH}"
 
 # Pre-compile our queries to save time later
 RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-repo/*/ql/src/codeql-suites/*.qls --additional-packs=.
-RUN codeql query compile --threads=0 ${CODEQL_HOME}/codeql-go-repo/ql/src/codeql-suites/*.qls --additional-packs=.
 
 ENV PYTHONIOENCODING=utf-8
 
