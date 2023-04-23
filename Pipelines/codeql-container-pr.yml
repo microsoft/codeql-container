@@ -1,0 +1,18 @@
+# Azure Pipelines
+# https://aka.ms/yaml
+
+name: CodeQL-Container_PR_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+trigger: none
+pr:
+- main
+
+resources:
+  repositories:
+    - repository: build
+      type: git
+      name: SecurityEngineering/codeql-container-build
+      ref: da/pipeline-update
+      #ref: refs/tags/v1.0.0
+
+jobs:
+- template: codeql-container-build-pr.yml@build
