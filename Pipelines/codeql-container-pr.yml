@@ -14,5 +14,8 @@ resources:
       ref: da/pipeline-update
       #ref: refs/tags/v1.0.0
 
+variables:
+  buildTimeStamp: # will be set by script
+
 jobs:
 - template: codeql-container-build-pr.yml@build
