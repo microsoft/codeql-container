@@ -1,0 +1,20 @@
+# Azure Pipelines
+# https://aka.ms/yaml
+
+name: CodeQL-Container_Release_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+trigger:
+- main
+pr: none
+
+resources:
+  repositories:
+    - repository: build
+      type: git
+      name: SecurityEngineering/codeql-container-build
+      ref: refs/tags/v1.0.0
+
+variables:
+  buildTimeStamp: # will be set by script
+
+jobs:
+- template: codeql-container-build-release.yml@build
