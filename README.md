@@ -105,7 +105,7 @@ $ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/fo
 $ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS=" database upgrade /opt/results/source_db" mcr.microsoft.com/cstsectools/codeql-container
 
 # run the queries in the qlpack
-$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2 --output=/opt/results/issues.sarif /opt/results/source_db ${language}-security-and-quality.qls" mcr.microsoft.com/cstsectools/codeql-container
+$ docker run --rm --name codeql-container -v /dir/to/analyze:/opt/src -v /dir/for/results:/opt/results -e CODEQL_CLI_ARGS="database analyze --format=sarifv2.1.0 --output=/opt/results/issues.sarif /opt/results/source_db ${language}-security-and-quality.qls" mcr.microsoft.com/cstsectools/codeql-container
 ```
 
 For more information on CodeQL and QL packs, please visit https://www.github.com/github/codeql.
