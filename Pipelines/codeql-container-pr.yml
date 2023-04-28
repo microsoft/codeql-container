@@ -11,8 +11,7 @@ resources:
     - repository: build
       type: git
       name: SecurityEngineering/codeql-container-build
-      ref: da/pipeline-update
-      #ref: refs/tags/v1.0.0
+      ref: refs/tags/v1.0.0
 
 variables:
   buildTimeStamp: # will be set by script
