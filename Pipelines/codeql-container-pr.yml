@@ -3,8 +3,7 @@
 
 name: CodeQL-Container_PR_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 trigger: none
-pr:
-- main
+pr: none
 
 resources:
   repositories:
