@@ -18,6 +18,7 @@ RUN adduser --home ${CODEQL_HOME} ${USERNAME} && \
     	curl \
     	wget \
     	git \
+        git-lfs \
     	build-essential \
     	unzip \
     	apt-transport-https \
